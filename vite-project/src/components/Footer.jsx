@@ -2,16 +2,10 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="w-full text-center py-4 bg-gray-800 text-gray-400 mt-10">
-      <p>© {new Date().getFullYear()} LRU Cache Visualizer. Built with ❤️ by Your Name</p>
-      <p>
-        <a href="https://github.com/yourgithub" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-          GitHub
-        </a>{" "}
-        |{" "}
-        <a href="https://yourwebsite.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-          Portfolio
-        </a>
+    <footer className="w-full bg-gray-800 text-gray-400 py-3 text-center border-t border-gray-700 mt-10 mb-0">
+      <p className="text-sm">&copy; {new Date().getFullYear()} LRU Cache Visualizer. All rights reserved.</p>
+      <p className="text-xs">
+        Built with ❤️ using React & Framer Motion
       </p>
     </footer>
   );

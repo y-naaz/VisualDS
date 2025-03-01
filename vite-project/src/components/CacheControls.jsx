@@ -1,16 +1,85 @@
 import React, { useState } from "react";
-import Navbar from "./Navbar";
-import CacheControls from "./CacheControls";
-import CacheDisplay from "./CacheDisplay";
-import { motion } from "framer-motion";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
+import cacheHitSound from "../assets/cache-hit.mp3";
+import cacheMissSound from "../assets/cache-miss.mp3";
+import cachePutSound from "../assets/cache-put.mp3";
 import LRUCache from "../utils/LRUCache";
 
-const LRUPage = () => {
-  const [cacheSize, setCacheSize] = useState(4);
-  const [cache, setCache] = useState(new LRUCache(cacheSize));
-  const [cacheData, setCacheData] = useState([]);
+const CacheControls = ({ cache, setCache, setCacheData }) => {
   const [input, setInput] = useState({ key: "", value: "" });
+  const [cacheSize, setCacheSize] = useState(4);
+
+  const playSound = (soundFile) => {
+    const sound = new Audio(soundFile);
+    sound.play();
+  };
+
+  const handleChange = (e) => {
+    setInput({ ...input, [e.target.name]: e.target.value });
+  };
+
+  const handleCacheSizeChange = (e) => {
+    const newSize = parseInt(e.target.value, 10);
+    if (newSize > 0) {
+      setCacheSize(newSize);
+      setCache(new LRUCache(newSize));
+      setCacheData([]);
+      toast("Cache size updated!", {
+        description: `New size: ${newSize}`,
+        position: "top-center",
+        duration: 2000,
+        style: { background: "#6d28d9", color: "#fff" },
+      });
+    }
+  };
+
+  const handleGet = () => {
+    const key = input.key.trim();
+    if (!key) {
+      toast.error("Invalid Input", { description: "Key cannot be empty." });
+      return;
+    }
+
+    const result = cache.get(key);
+    if (result === -1) {
+      playSound(cacheMissSound);
+      toast.error("Cache Miss!", { description: `Key "${key}" not found.` });
+    } else {
+      playSound(cacheHitSound);
+      toast.success("Cache Hit!", {
+        description: `Fetched value "${result}" for key "${key}".`,
+      });
+    }
+    updateCacheView();
+  };
+
+  const handlePut = () => {
+    const key = input.key.trim();
+    const value = input.value.trim();
+
+    if (!key || !value) {
+      toast.error("Invalid Input", {
+        description: "Both key and value are required.",
+      });
+      return;
+    }
+
+    const existingValue = cache.get(key);
+    if (existingValue !== -1) {
+      toast.info("Key Overwritten", {
+        description: `Updated "${key}" from "${existingValue}" to "${value}".`,
+      });
+    } else {
+      playSound(cachePutSound);
+      toast.success("Cache Updated!", {
+        description: `Inserted "${key}: ${value}".`,
+      });
+    }
+
+    cache.put(key, value);
+    setInput({ key: "", value: "" });
+    updateCacheView();
+  };
 
   const updateCacheView = () => {
     const entries = [];
@@ -23,33 +92,55 @@ const LRUPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-900 text-gray-300 gap-8">
-      <Navbar />
+    <div className="bg-gray-800 p-4 rounded-xl shadow-lg flex flex-col gap-3 items-center w-1/3 ml-20 border border-gray-700">
       <Toaster richColors position="top-center" />
-
-      <motion.h1
-        className="text-4xl font-extrabold bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent text-center mb-4"
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        LRU Cache Visualizer
-      </motion.h1>
-
-      <div className="flex flex-row items-start justify-center w-full gap-10">
-        <CacheControls
-          cacheSize={cacheSize}
-          setCacheSize={setCacheSize}
-          cache={cache}
-          setCache={setCache}
-          input={input}
-          setInput={setInput}
-          updateCacheView={updateCacheView}
+      <p className="text-gray-400 text-center text-xl">
+        Enter a key-value pair and interact with the cache.
+      </p>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          name="key"
+          placeholder="Key"
+          value={input.key}
+          onChange={handleChange}
+          className="px-3 py-2 bg-gray-700 rounded-lg text-gray-300 w-1/2 border border-gray-600 focus:ring-2 focus:ring-purple-500"
         />
-        <CacheDisplay cacheData={cacheData} />
+        <input
+          type="text"
+          name="value"
+          placeholder="Value"
+          value={input.value}
+          onChange={handleChange}
+          className="px-3 py-2 bg-gray-700 rounded-lg text-gray-300 w-1/2 border border-gray-600 focus:ring-2 focus:ring-purple-500"
+        />
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={handleGet}
+          className="px-5 py-2 bg-blue-600 rounded-lg transition hover:bg-blue-500 shadow-md hover:shadow-blue-500/50"
+        >
+          Get
+        </button>
+        <button
+          onClick={handlePut}
+          className="px-5 py-2 bg-green-500 rounded-lg transition hover:bg-green-400 shadow-md hover:shadow-green-500/50"
+        >
+          Put
+        </button>
+      </div>
+      <div className="flex flex-col items-center mt-4">
+        <label className="text-gray-400">Cache Size:</label>
+        <input
+          type="number"
+          value={cacheSize}
+          onChange={handleCacheSizeChange}
+          className="px-3 py-2 bg-gray-700 rounded-lg text-gray-300 w-20 text-center border border-gray-600 focus:ring-2 focus:ring-purple-500"
+          min="1"
+        />
       </div>
     </div>
   );
 };
 
-export default LRUPage;
+export default CacheControls;
