@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useSwipeable } from "react-swipeable";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import FeatureSection from "./Features"; // Import FeatureSection
 
 const algorithms = [
   { name: "Binary Search", description: "Find elements in sorted arrays efficiently." },
@@ -14,8 +15,10 @@ const algorithms = [
 const Hero = () => {
   const [index, setIndex] = useState(0);
   const [swiping, setSwiping] = useState(false);
-  const [showCards, setShowCards] = useState(false);
   const cardsRef = useRef(null);
+  const heroRef = useRef(null);
+  
+  const featureRef = useRef(null); // Reference for Feature Section
   const navigate = useNavigate();
 
   const handleSwipe = (direction) => {
@@ -34,11 +37,8 @@ const Hero = () => {
     }
   };
 
-  const scrollToCards = () => {
-    setShowCards(true);
-    setTimeout(() => {
-      cardsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 100);
+  const scrollToFeatureSection = () => {
+    featureRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handlers = useSwipeable({
@@ -50,8 +50,8 @@ const Hero = () => {
   return (
     <div className="relative w-full min-h-screen bg-gray-900 text-gray-300 flex flex-col items-center text-center p-6">
       {/* Navbar */}
-      <Navbar />
-      
+      <Navbar heroRef={heroRef} featureRef={featureRef}/>
+
       {/* Hero Section */}
       <div className="flex flex-col items-center justify-center h-screen">
         <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-500 text-transparent bg-clip-text animate-pulse tracking-wide">
@@ -62,41 +62,43 @@ const Hero = () => {
         </p>
         <div className="mt-8 flex gap-4">
           <button 
-            onClick={scrollToCards} 
+            onClick={() => cardsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })} 
             className="px-6 py-3 bg-cyan-500 text-gray-900 font-semibold rounded-lg shadow-md transition-all hover:scale-105 hover:shadow-cyan-400/50"
           >
             Explore Now →
           </button>
           <button 
+            onClick={scrollToFeatureSection} 
             className="px-6 py-3 bg-gray-700 text-gray-300 font-semibold rounded-lg shadow-md transition-all hover:scale-105 hover:shadow-gray-500/50"
           >
             Learn More
           </button>
         </div>
       </div>
-      
+
       {/* Cards Section */}
-      {showCards && (
-        <div ref={cardsRef} className="mt-20 flex flex-col items-center min-h-[80vh] justify-center">
-          <h2 className="text-4xl font-bold text-cyan-400">Explore Algorithms</h2>
-          <p className="text-gray-400 text-lg mb-4">Swipe or Click to Explore</p>
-          
-          <div className="relative flex items-center justify-center mt-8">
-            <button onClick={() => handleSwipe("right")} className="absolute left-[-50px] p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-transform hover:scale-105">
-              ←
-            </button>
+      <div ref={cardsRef} className="mt-20 flex flex-col items-center min-h-[80vh] justify-center">
+        <h2 className="text-4xl font-bold text-cyan-400">Explore Algorithms</h2>
+        <p className="text-gray-400 text-lg mb-4">Swipe or Click to Explore</p>
 
-            <div {...handlers} onClick={handleCardClick} className="relative w-96 h-56 bg-gray-800 rounded-xl p-6 flex flex-col items-center justify-center shadow-lg text-center cursor-pointer transition-transform duration-300 border border-gray-600 hover:bg-gray-700">
-              <h3 className="text-2xl font-bold text-cyan-400">{algorithms[index].name}</h3>
-              <p className="mt-2 text-gray-400">{algorithms[index].description}</p>
-            </div>
+        <div className="relative flex items-center justify-center mt-8">
+          <button onClick={() => handleSwipe("right")} className="absolute left-[-50px] p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-transform hover:scale-105">
+            ←
+          </button>
 
-            <button onClick={() => handleSwipe("left")} className="absolute right-[-50px] p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-transform hover:scale-105">
-              →
-            </button>
+          <div {...handlers} onClick={handleCardClick} className="relative w-96 h-56 bg-gray-800 rounded-xl p-6 flex flex-col items-center justify-center shadow-lg text-center cursor-pointer transition-transform duration-300 border border-gray-600 hover:bg-gray-700">
+            <h3 className="text-2xl font-bold text-cyan-400">{algorithms[index].name}</h3>
+            <p className="mt-2 text-gray-400">{algorithms[index].description}</p>
           </div>
+
+          <button onClick={() => handleSwipe("left")} className="absolute right-[-50px] p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-transform hover:scale-105">
+            → 
+          </button>
         </div>
-      )}
+      </div>
+
+      {/* Feature Section */}
+      <FeatureSection featureRef={featureRef} />
     </div>
   );
 };
