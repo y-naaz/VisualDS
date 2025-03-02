@@ -5,7 +5,7 @@ import Navbar from "./Navbar";
 import FeatureSection from "./Features"; // Import FeatureSection
 
 const algorithms = [
-  { name: "Binary Search", description: "Find elements in sorted arrays efficiently." },
+  { name: "Binary Search Tree", description: "Insert Delete and Search a key in a Tree.", route:"/BST" },
   { name: "Two Pointers", description: "Optimize search with two pointers." },
   { name: "Sliding Window", description: "Improve performance with a dynamic window." },
   { name: "Recursion & Backtracking", description: "Solve problems by exploring all options." },
